@@ -9,7 +9,6 @@
 
 /* jshint node: true, devel: true */
 'use strict';
-var math = require('mathjs');
 const
   bodyParser = require('body-parser'),
   config = require('config'),
@@ -63,7 +62,7 @@ if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
  */
 app.get('/webhook', function(req, res) {
   if (req.query['hub.mode'] === 'subscribe' &&
-      req.query['hub.verify_token'] === 'night_train_to_moscow') {
+      req.query['hub.verify_token'] === night_train_to_moscow) {
     console.log("Validating webhook");
     res.status(200).send(req.query['hub.challenge']);
   } else {
@@ -71,27 +70,6 @@ app.get('/webhook', function(req, res) {
     res.sendStatus(403);
   }
 });
-
-function replyToSender(sender, text) {
-  messageData = {
-    text : text
-  };
-  request({
-    url: 'https://graph.facebook.com/v2.6/me/messages',
-    qs: { access_token : token },
-    method: 'POST',
-    json: {
-       recipient: { id : sender },
-       message: messageData,
-    }
-  }, function(error, response, body) {
-       if (error) {
-         console.log('Error sending message: ', error);
-       } else if (response.body.error) {
-         console.log('Error: ', response.body.error);
-       }
-     });
-};
 
 /*
  * All callbacks for Messenger are POST-ed. They will be sent to the same
@@ -102,10 +80,7 @@ function replyToSender(sender, text) {
  */
 app.post('/webhook', function (req, res) {
   var data = req.body;
-  if (event.message && event.message.text) {
-      text = event.message.text;
-      replyToSender(sender, math.eval(text));
-    }
+
   // Make sure this is a page subscription
   if (data.object == 'page') {
     // Iterate over each entry
